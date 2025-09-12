@@ -6,6 +6,7 @@ const VendorDashboard = ({ user, onLogout }) => {
   const [formData, setFormData] = useState({
     type: "",
     batchId: "",
+    quantity: "", // Added quantity field
     supplyDate: "",
     warrantyEnd: "",
     description: "",
@@ -16,13 +17,14 @@ const VendorDashboard = ({ user, onLogout }) => {
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Mock data for demonstration
+  // Updated mock data with quantity
   useEffect(() => {
     const mockComponents = [
       {
         id: 1,
         type: "Brake Pad",
         batchId: "BP2024001",
+        quantity: 50, // Added quantity
         supplyDate: "2024-01-15",
         warrantyEnd: "2026-01-15",
         description: "High-performance brake pads for trains",
@@ -39,6 +41,7 @@ const VendorDashboard = ({ user, onLogout }) => {
         id: 2,
         type: "Wheel Assembly",
         batchId: "WA2024002",
+        quantity: 25, // Added quantity
         supplyDate: "2024-02-10",
         warrantyEnd: "2027-02-10",
         description: "Complete wheel assembly for passenger trains",
@@ -66,6 +69,7 @@ const VendorDashboard = ({ user, onLogout }) => {
     const newComponent = {
       id: components.length + 1,
       ...formData,
+      quantity: parseInt(formData.quantity), // Convert to number
       status: "Active",
       inspectionHistory: []
     };
@@ -73,6 +77,7 @@ const VendorDashboard = ({ user, onLogout }) => {
     setFormData({
       type: "",
       batchId: "",
+      quantity: "", // Reset quantity
       supplyDate: "",
       warrantyEnd: "",
       description: "",
@@ -88,6 +93,7 @@ const VendorDashboard = ({ user, onLogout }) => {
     return JSON.stringify({
       type: component.type,
       batchId: component.batchId,
+      quantity: component.quantity, // Include quantity in QR
       supplyDate: component.supplyDate,
       warrantyEnd: component.warrantyEnd,
       supplier: component.supplier,
@@ -214,11 +220,13 @@ const VendorDashboard = ({ user, onLogout }) => {
           </button>
         </div>
 
+        {/* Updated table with quantity column */}
         <table style={styles.table}>
           <thead>
             <tr>
               <th style={styles.th}>Type</th>
               <th style={styles.th}>Batch ID</th>
+              <th style={styles.th}>Quantity</th> {/* Added quantity column */}
               <th style={styles.th}>Supply Date</th>
               <th style={styles.th}>Warranty End</th>
               <th style={styles.th}>Supplier</th>
@@ -232,6 +240,7 @@ const VendorDashboard = ({ user, onLogout }) => {
               <tr key={component.id}>
                 <td style={styles.td}>{component.type}</td>
                 <td style={styles.td}>{component.batchId}</td>
+                <td style={styles.td}>{component.quantity}</td> {/* Display quantity */}
                 <td style={styles.td}>{component.supplyDate}</td>
                 <td style={styles.td}>{component.warrantyEnd}</td>
                 <td style={styles.td}>{component.supplier}</td>
@@ -287,6 +296,20 @@ const VendorDashboard = ({ user, onLogout }) => {
                   name="batchId"
                   value={formData.batchId}
                   onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              {/* Added quantity field */}
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Quantity</label>
+                <input
+                  style={styles.input}
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleInputChange}
+                  min="1"
                   required
                 />
               </div>
@@ -391,6 +414,7 @@ const VendorDashboard = ({ user, onLogout }) => {
               <div>
                 <p><strong>Type:</strong> {selectedComponent.type}</p>
                 <p><strong>Batch ID:</strong> {selectedComponent.batchId}</p>
+                <p><strong>Quantity:</strong> {selectedComponent.quantity}</p> {/* Added quantity display */}
                 <p><strong>Supply Date:</strong> {selectedComponent.supplyDate}</p>
                 <p><strong>Warranty End:</strong> {selectedComponent.warrantyEnd}</p>
                 <p><strong>Supplier:</strong> {selectedComponent.supplier}</p>

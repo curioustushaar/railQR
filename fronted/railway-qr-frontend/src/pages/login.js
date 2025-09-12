@@ -232,14 +232,14 @@ const Login = ({ onLogin }) => {
           </button>
         </form>
 
-        {isLogin && (
+        {/*isLogin && (
           <div style={styles.demoAccounts}>
             <h4>Demo Accounts:</h4>
             <p><strong>Admin:</strong> admin@test.com / admin</p>
             <p><strong>Vendor:</strong> vendor@test.com / vendor</p>
             <p><strong>Inspector:</strong> inspector@test.com / inspector</p>
           </div>
-        )}
+        )*/}
       </div>
     </div>
   );
