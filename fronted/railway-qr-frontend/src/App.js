@@ -1,88 +1,171 @@
-import React, { useState } from 'react';
-import './App.css';
-import AdminDashboard from './pages/AdminDashboard';
-import InspectorDashboard from './pages/InspectorDashboard';
-import VendorDashboard from './pages/VendorDashboard';
-import Login from './pages/login';
-import VerifyComponent from './components/VerifyComponent';
+import React, { useState } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import FeaturesPage from "./pages/FeaturesPage";
+import ComponentDetailsFromQR from "./pages/ComponentDetailsFromQR";
+import Login from "./components/Auth/Login";
+import Register from "./components/Auth/Register";
+import VendorDashboard from "./components/Dashboard/VendorDashboard";
+import AdminDashboard from "./components/Dashboard/AdminDashboard";
+import InspectorDashboard from "./components/Dashboard/InspectorDashboard";
+import QRScanner from "./components/QRScanner";
+import ComponentDetailsPage from "./components/ComponentDetailsPage";
+import "./App.css";
 
-function App() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const [currentView, setCurrentView] = useState('dashboard');
+const AppContent = () => {
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [scannedComponentData, setScannedComponentData] = useState(null);
+  const { user, logout, loading } = useAuth();
 
-  const handleLogin = (user, role) => {
-    setCurrentUser(user);
-    setUserRole(role);
-    setCurrentView('dashboard');
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setUserRole(null);
-    setCurrentView('dashboard');
-  };
-
-  const handleViewChange = (view) => {
-    setCurrentView(view);
-  };
-
-  if (!currentUser) {
-    return <Login onLogin={handleLogin} />;
+  // Check if URL is for component details from QR scan
+  if (window.location.pathname === '/component-details') {
+    return <ComponentDetailsFromQR />;
   }
 
-  // Navigation component for all user roles
-  const Navigation = () => (
-    <nav className="main-navigation">
-      <button 
-        onClick={() => handleViewChange('dashboard')}
-        className={currentView === 'dashboard' ? 'active' : ''}
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "1.2rem",
+        }}
       >
-        Dashboard
-      </button>
-      <button 
-        onClick={() => handleViewChange('verify')}
-        className={currentView === 'verify' ? 'active' : ''}
-      >
-        Verify Component
-      </button>
-      <button onClick={handleLogout} className="logout-btn">
-        Logout
-      </button>
-    </nav>
-  );
+        Loading...
+      </div>
+    );
+  }
 
-  // Render content based on current view
-  const renderContent = () => {
-    if (currentView === 'verify') {
-      return <VerifyComponent userRole={userRole} />;
-    }
-
+  // Show appropriate dashboard based on user role
+  if (user) {
+    const userRole = user.role.toUpperCase();
     switch (userRole) {
-      case 'admin':
-        return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
-      case 'inspector':
-        return <InspectorDashboard user={currentUser} onLogout={handleLogout} />;
-      case 'vendor':
-        return <VendorDashboard user={currentUser} onLogout={handleLogout} />;
+      case "ADMIN":
+        return <AdminDashboard user={user} onLogout={logout} />;
+      case "VENDOR":
+        return <VendorDashboard user={user} onLogout={logout} />;
+      case "INSPECTOR":
+        return <InspectorDashboard user={user} onLogout={logout} />;
       default:
-        return <Login onLogin={handleLogin} />;
+        return (
+          <HomePage
+            onGetStarted={() => {}}
+            user={user}
+            onLogin={() => setShowLogin(true)}
+            onLogout={logout}
+          />
+        );
     }
+  }
+
+  const handleGetStarted = () => {
+    setShowLogin(true);
+  };
+
+  const handleQRScanResult = (qrData) => {
+    setShowQRScanner(false);
+    setScannedComponentData(qrData);
+  };
+
+  const handleCloseComponentDetails = () => {
+    setScannedComponentData(null);
   };
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>Railway QR System</h1>
-        <div className="user-info">
-          <span>Welcome, {currentUser.name} ({userRole})</span>
-        </div>
-      </header>
-      <Navigation />
-      <main className="app-main">
-        {renderContent()}
-      </main>
+    <div className="App">
+      <HomePage
+        onGetStarted={handleGetStarted}
+        user={user}
+        onLogin={() => setShowLogin(true)}
+        onLogout={logout}
+        onShowAbout={() => setShowAbout(true)}
+        onShowContact={() => setShowContact(true)}
+        onShowFeatures={() => setShowFeatures(true)}
+        onShowQRScanner={() => setShowQRScanner(true)}
+      />
+
+      {showLogin && (
+        <Login
+          onClose={() => setShowLogin(false)}
+          onSwitchToRegister={() => {
+            setShowLogin(false);
+            setShowRegister(true);
+          }}
+        />
+      )}
+
+      {showRegister && (
+        <Register
+          onClose={() => setShowRegister(false)}
+          onSwitchToLogin={() => {
+            setShowRegister(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
+
+      {showAbout && (
+        <AboutPage
+          onClose={() => setShowAbout(false)}
+          onLogin={() => {
+            setShowAbout(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
+
+      {showContact && (
+        <ContactPage
+          onClose={() => setShowContact(false)}
+          onLogin={() => {
+            setShowContact(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
+
+      {showFeatures && (
+        <FeaturesPage
+          onClose={() => setShowFeatures(false)}
+          onLogin={() => {
+            setShowFeatures(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
+
+      {showQRScanner && (
+        <QRScanner
+          onScanResult={handleQRScanResult}
+          onClose={() => setShowQRScanner(false)}
+          isActive={showQRScanner}
+        />
+      )}
+
+      {scannedComponentData && (
+        <ComponentDetailsPage
+          componentData={scannedComponentData}
+          onClose={handleCloseComponentDetails}
+        />
+      )}
     </div>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
