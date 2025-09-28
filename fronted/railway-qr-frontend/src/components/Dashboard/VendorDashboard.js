@@ -24,16 +24,43 @@ function VendorDashboard({ user, onLogout }) {
       const response = await componentAPI.getAllComponents();
       
       if (response.success) {
+        console.log(`Loaded ${response.components.length} components for user: ${user?.email}`);
         setComponents(response.components || []);
       } else {
-        // Fallback to default components if API fails
-        setComponents(getDefaultComponents());
+        // Try to load from localStorage as fallback
+        const userEmail = user?.email || 'default';
+        const storageKey = `components_${userEmail}`;
+        const savedComponents = localStorage.getItem(storageKey);
+        
+        if (savedComponents) {
+          const parsedComponents = JSON.parse(savedComponents);
+          setComponents(parsedComponents);
+          console.log(`Loaded ${parsedComponents.length} components from localStorage for user: ${userEmail}`);
+        } else {
+          setComponents(getDefaultComponents());
+        }
       }
     } catch (error) {
       console.error('Error loading components:', error);
-      setError('Failed to load components. Using offline mode.');
-      // Fallback to default components
-      setComponents(getDefaultComponents());
+      setError('Failed to load components from server. Loading from local storage...');
+      
+      // Load from localStorage as fallback
+      try {
+        const userEmail = user?.email || 'default';
+        const storageKey = `components_${userEmail}`;
+        const savedComponents = localStorage.getItem(storageKey);
+        
+        if (savedComponents) {
+          const parsedComponents = JSON.parse(savedComponents);
+          setComponents(parsedComponents);
+          console.log(`Loaded ${parsedComponents.length} components from localStorage for user: ${userEmail}`);
+        } else {
+          setComponents(getDefaultComponents());
+        }
+      } catch (storageError) {
+        console.error('Error loading from localStorage:', storageError);
+        setComponents(getDefaultComponents());
+      }
     } finally {
       setLoading(false);
     }
@@ -80,18 +107,24 @@ function VendorDashboard({ user, onLogout }) {
 
   // Load components on component mount and when user changes
   useEffect(() => {
-    loadComponents();
+    if (user?.email) {
+      console.log(`Loading components for user: ${user.email}`);
+      loadComponents();
+    }
   }, [user?.email]);
 
-  // Save components to localStorage whenever components change
+  // Save components to localStorage whenever components change (only for backup)
   useEffect(() => {
-    try {
-      const userEmail = user?.email || 'default';
-      const storageKey = `components_${userEmail}`;
-      localStorage.setItem(storageKey, JSON.stringify(components));
-      console.log(`Components saved for user: ${userEmail}`);
-    } catch (error) {
-      console.error('Error saving components to storage:', error);
+    // Only save to localStorage if components are loaded and user is available
+    if (components.length > 0 && user?.email) {
+      try {
+        const userEmail = user.email;
+        const storageKey = `components_${userEmail}`;
+        localStorage.setItem(storageKey, JSON.stringify(components));
+        console.log(`Components backed up to localStorage for user: ${userEmail} (${components.length} components)`);
+      } catch (error) {
+        console.error('Error saving components to localStorage:', error);
+      }
     }
   }, [components, user?.email]);
 

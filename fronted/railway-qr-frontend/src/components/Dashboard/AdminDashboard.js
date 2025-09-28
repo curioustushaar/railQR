@@ -5,9 +5,9 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddUser, setShowAddUser] = useState(false);
   const [users, setUsers] = useState([
-    { id: 1, name: 'John Vendor', email: 'vendor@test.com', role: 'VENDOR', status: 'ACTIVE', lastLogin: '2024-09-10' },
-    { id: 2, name: 'Jane Inspector', email: 'inspector@test.com', role: 'INSPECTOR', status: 'ACTIVE', lastLogin: '2024-09-11' },
-    { id: 3, name: 'Mike Admin', email: 'admin@test.com', role: 'ADMIN', status: 'ACTIVE', lastLogin: '2024-09-12' }
+    { id: 1, name: 'John Vendor', email: 'vendor@test.com', role: 'VENDOR', status: 'ACTIVE', lastLogin: '2025-09-15' },
+    { id: 2, name: 'Jane Inspector', email: 'inspector@test.com', role: 'INSPECTOR', status: 'ACTIVE', lastLogin: '2025-09-15' },
+    { id: 3, name: 'Mike Admin', email: 'admin@test.com', role: 'ADMIN', status: 'ACTIVE', lastLogin: '2025-09-15' }
   ]);
 
   // Dynamic components state from API
@@ -21,24 +21,26 @@ const AdminDashboard = ({ user, onLogout }) => {
       setLoading(true);
       setError(null);
       
+      console.log('Admin loading all components from all users...');
+      
       // Try to get all components via admin API
       const response = await componentAPI.getAllComponentsAdmin();
       
       if (response.success) {
         setComponents(response.components || []);
-        console.log(`Loaded ${response.totalComponents} components from ${response.totalUsers} users`);
+        console.log(`✅ Admin loaded ${response.totalComponents} components from ${response.totalUsers} users`);
       } else {
-        throw new Error('Failed to fetch components');
+        throw new Error('Failed to fetch components from admin API');
       }
     } catch (error) {
-      console.error('Error loading components:', error);
-      setError('Failed to load components from API. Using sample data.');
+      console.error('❌ Error loading components for admin:', error);
+      setError(`Failed to load components from API: ${error.message}. Using sample data.`);
       
       // Fallback to sample data
       setComponents([
-        { id: 1, type: 'Brake Pad', batchId: 'BP2024001', vendor: 'Railway Parts Co.', status: 'Active', addedBy: 'vendor@test.com', addedDate: '2024-09-10' },
-        { id: 2, type: 'Wheel Assembly', batchId: 'WA2024002', vendor: 'Metro Wheels Ltd.', status: 'Active', addedBy: 'vendor@test.com', addedDate: '2024-09-11' },
-        { id: 3, type: 'Rail Clip', batchId: 'RC2024003', vendor: 'Track Components Inc.', status: 'Pending', addedBy: 'inspector@test.com', addedDate: '2024-09-12' }
+        { id: 1, type: 'Brake Pad', batchId: 'BP2024001', vendor: 'Railway Parts Co.', status: 'Active', addedBy: 'vendor@test.com', addedDate: '2025-09-15' },
+        { id: 2, type: 'Wheel Assembly', batchId: 'WA2024002', vendor: 'Metro Wheels Ltd.', status: 'Active', addedBy: 'vendor@test.com', addedDate: '2025-09-15' },
+        { id: 3, type: 'Rail Clip', batchId: 'RC2024003', vendor: 'Track Components Inc.', status: 'Pending', addedBy: 'inspector@test.com', addedDate: '2025-09-15' }
       ]);
     } finally {
       setLoading(false);
@@ -52,9 +54,9 @@ const AdminDashboard = ({ user, onLogout }) => {
 
   // Dynamic inspections based on components
   const [inspections, setInspections] = useState([
-    { id: 1, componentId: 'BP2024001', inspector: 'Jane Inspector', date: '2024-09-10', status: 'Passed', remarks: 'Good condition' },
-    { id: 2, componentId: 'WA2024002', inspector: 'John Doe', date: '2024-09-11', status: 'Failed', remarks: 'Defective' },
-    { id: 3, componentId: 'RC2024003', inspector: 'Jane Inspector', date: '2024-09-12', status: 'Passed', remarks: 'Satisfactory' }
+    { id: 1, componentId: 'BP2024001', inspector: 'Jane Inspector', date: '2025-09-15', status: 'Passed', remarks: 'Good condition' },
+    { id: 2, componentId: 'WA2024002', inspector: 'John Doe', date: '2025-09-15', status: 'Failed', remarks: 'Defective' },
+    { id: 3, componentId: 'RC2024003', inspector: 'Jane Inspector', date: '2025-09-15', status: 'Passed', remarks: 'Satisfactory' }
   ]);
 
   const [newUser, setNewUser] = useState({
@@ -363,7 +365,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           </thead>
           <tbody>
             <tr>
-              <td style={styles.td}>2024-09-13</td>
+              <td style={styles.td}>2025-09-15</td>
               <td style={styles.td}>Component Inspection</td>
               <td style={styles.td}>Jane Inspector</td>
               <td style={styles.td}>
@@ -373,7 +375,7 @@ const AdminDashboard = ({ user, onLogout }) => {
               </td>
             </tr>
             <tr>
-              <td style={styles.td}>2024-09-12</td>
+              <td style={styles.td}>2025-09-15</td>
               <td style={styles.td}>New Component Added</td>
               <td style={styles.td}>John Vendor</td>
               <td style={styles.td}>
@@ -383,7 +385,7 @@ const AdminDashboard = ({ user, onLogout }) => {
               </td>
             </tr>
             <tr>
-              <td style={styles.td}>2024-09-11</td>
+              <td style={styles.td}>2025-09-15</td>
               <td style={styles.td}>User Registration</td>
               <td style={styles.td}>System Admin</td>
               <td style={styles.td}>
